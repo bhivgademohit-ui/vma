@@ -1,54 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will You Be My Valentine? ❤️</title>
-    <style>
-        body { font-family: 'Arial', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #ffeef2; overflow: hidden; }
-        .container { text-align: center; }
-        h1 { color: #d63384; font-size: 3rem; margin-bottom: 20px; }
-        .buttons { display: flex; gap: 20px; justify-content: center; align-items: center; }
-        button { padding: 15px 30px; font-size: 1.2rem; border: none; border-radius: 10px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        #yesBtn { background-color: #ff4d6d; color: white; }
-        #noBtn { background-color: #6c757d; color: white; position: relative; }
-        #success-msg { display: none; font-size: 2rem; color: #ff4d6d; }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Will You Be My Valentine? ❤️</title>
+  <style>
+    :root{
+      --pink:#ff4d6d;
+      --pink-dark:#d63384;
+      --rose:#ff6b9f;
+      --bg1:#ffe0ea;
+      --bg2:#ffd6f3;
+      --bg3:#ffe7f0;
+      --text:#2b2b2b;
+      --glass-bg: rgba(255,255,255,0.78);
+      --glass-border: rgba(255,255,255,0.55);
+      --shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans";
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      background: radial-gradient(1200px 600px at 50% 100%, #fff8fc 0%, #ffeef6 40%, #ffe5f0 70%, #ffd9ea 100%);
+    }
+
+    /* Initial main card */
+    .container{
+      text-align:center; padding:28px; width:min(92vw,680px);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 2;
+    }
+
+    h1{
+      color: var(--pink-dark);
+      font-size: clamp(1.9rem, 4.8vw, 3rem);
+      margin: 0 0 18px;
+      line-height:1.14;
+    }
+
+    .buttons{
+      display:flex; gap:20px; justify-content:center; align-items:center; position:relative; height:64px;
+    }
+
+    button{
+      padding:14px 26px;
+      font-size:1.05rem; font-weight:700;
+      border:none; border-radius:14px; cursor:pointer;
+      transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      will-change: transform, left, top;
+    }
+    #yesBtn{ background: linear-gradient(135deg, var(--pink), #ff7aa0); color:#fff; }
+    #yesBtn:hover{ transform: translateY(-2px); }
+    #noBtn{ background:#6c757d; color:#fff; position:absolute; left:130px; top:0; }
+
+    /* Animated ambient gradient behind everything */
+    .bg-gradient{
+      position:fixed; inset:-20vmax; z-index:0; filter: blur(60px) saturate(110%);
+      background: conic-gradient(from 180deg at 50% 50%, var(--bg1), var(--bg2), var(--bg3), var(--bg1));
+      animation: swirl 22s linear infinite;
+      opacity: 0.55;
+      pointer-events:none;
+    }
+    @keyframes swirl{
+      0%{ transform: rotate(0deg) scale(1.05); }
+      100%{ transform: rotate(360deg) scale(1.05); }
+    }
+
+    /* Soft vignette to frame the scene */
+    .vignette{
+      position:fixed; inset:0; pointer-events:none; z-index:1;
+      background: radial-gradient(120% 120% at 50% 50%, rgba(255,255,255,0) 60%, rgba(0,0,0,0.12) 100%);
+    }
+
+    /* Success view */
+    #success-wrap{
+      display:none; position:fixed; inset:0; z-index:3; display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    #success-card{
+      width:min(92vw, 760px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75));
+      border: 1px solid var(--glass-border);
+      border-radius: 26px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      padding: 28px 26px 26px;
+      text-align:center;
+      backdrop-filter: blur(10px) saturate(120%);
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* Light shine sweep */
+    .shine{
+      position:absolute; inset:-20% -40%;
+      background: conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.0) 0deg, rgba(255,255,255,0.25) 40deg, rgba(255,255,255,0.0) 80deg);
+      animation: sweep 6.5s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes sweep{
+      0%{ transform: rotate(0deg) translateX(0); }
+      50%{ transform: rotate(20deg) translateX(6%); }
+      100%{ transform: rotate(0deg) translateX(0); }
+    }
+
+    .success-title{
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: #f01757;
+      margin: 8px 0 12px;
+      text-shadow: 0 6px 18px rgba(240,23,87,0.25);
+      letter-spacing: .2px;
+    }
+
+    .typewriter{
+      font-size: clamp(1.05rem, 2.6vw, 1.25rem);
+      color:#7a2b45;
+      min-height: 2.8em;
+      margin: 0 auto 16px;
+      max-width: 46ch;
+      white-space: pre-wrap;
+    }
+
+    .success-sub{
+      color:#7c3a59;
+      font-weight:600; opacity:.9;
+      margin: 4px 0 16px;
+    }
+
+    .cta-row{
+      display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:12px;
+    }
+    .cta{
+      padding:12px 18px; border-radius:12px; border:1px solid rgba(0,0,0,0.06);
+      font-weight:700; cursor:pointer;
+      background:#fff; color:#ae2c57;
+      transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+      box-shadow: 0 10px 22px rgba(255,77,109,0.12);
+    }
+    .cta.primary{ background: linear-gradient(135deg, #ff6a8b, #ff91b0); color:white; border:none; }
+    .cta:hover{ transform: translateY(-2px); }
+
+    /* Floating hearts + sparkles */
+    .float-emoji{
+      position:fixed; bottom:-40px; font-size:18px; opacity:.55;
+      animation: rise linear forwards; pointer-events:none; user-select:none;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
+      z-index: 2;
+    }
+    @keyframes rise{
+      to{ transform: translateY(-110vh) translateX(var(--drift, 0)); opacity:0; }
+    }
+
+    /* Confetti canvas */
+    #confetti{ position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; display:none; z-index:4; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container" id="main-content">
-        <h1>Will you be my Valentine? 🌹</h1>
-        <div class="buttons">
-            <button id="yesBtn" onclick="celebrate()">Yes</button>
-            <button id="noBtn" onmouseover="moveButton()">No</button>
-        </div>
+  <!-- Ambient background layers -->
+  <div class="bg-gradient" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- Main question -->
+  <div class="container" id="main-content" role="dialog" aria-labelledby="title" aria-live="polite">
+    <h1 id="title">Will you be my Valentine? 🌹</h1>
+    <div class="buttons" id="buttons-zone" aria-label="Answer options">
+      <button id="yesBtn" type="button">Yes</button>
+      <button id="noBtn" type="button" aria-label="No (this one runs away)">No</button>
     </div>
-    <div id="success-msg">Yay! I knew you'd say yes! 🥰❤️</div>
+  </div>
 
-    <script>
-        let yesSize = 1.2;
-        function moveButton() {
-            const noBtn = document.getElementById('noBtn');
-            const yesBtn = document.getElementById('yesBtn');
-            
-            // Make the No button run away
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            noBtn.style.position = "absolute";
-            noBtn.style.left = x + "px";
-            noBtn.style.top = y + "px";
+  <!-- Success screen -->
+  <div id="success-wrap" aria-live="assertive">
+    <div id="success-card" role="status">
+      <div class="shine" aria-hidden="true"></div>
+      <h2 class="success-title">Yay! I knew you'd say yes! 🥰❤️</h2>
+      <div id="typewriter" class="typewriter"></div>
+      <div class="success-sub">You + Me • Valentine’s Day • It’s a date 💌</div>
+      <div class="cta-row">
+        <button class="cta primary" id="setDateBtn">Set a date 📅</button>
+        <button class="cta" id="replayBtn">Replay ✨</button>
+      </div>
+    </div>
+  </div>
 
-            // Make the Yes button bigger every time they try to click No
-            yesSize += 0.2;
-            yesBtn.style.transform = `scale(${yesSize})`;
+  <!-- Confetti -->
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <script>
+    (function(){
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+      const main = document.getElementById('main-content');
+      const zone = document.getElementById('buttons-zone');
+      const successWrap = document.getElementById('success-wrap');
+      const typewriterEl = document.getElementById('typewriter');
+      const setDateBtn = document.getElementById('setDateBtn');
+      const replayBtn = document.getElementById('replayBtn');
+
+      const confettiCanvas = document.getElementById('confetti');
+      const ctx = confettiCanvas.getContext('2d');
+
+      // YES button growth with cap
+      let yesScale = 1.2;
+      const YES_MAX = 2.2;
+
+      // Positioning helpers
+      function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+      function positionNoNearYes(){
+        const zoneRect = zone.getBoundingClientRect();
+        const yesRect = yesBtn.getBoundingClientRect();
+        const noRect = noBtn.getBoundingClientRect();
+        const margin = 16;
+        let x = yesRect.right - zoneRect.left + margin;
+        let y = yesRect.top - zoneRect.top;
+        const maxX = zoneRect.width - noRect.width - 4;
+        const maxY = zoneRect.height - noRect.height - 4;
+        x = clamp(x, 4, maxX);
+        y = clamp(y, 0, maxY);
+        noBtn.style.left = x + 'px';
+        noBtn.style.top = y + 'px';
+      }
+      positionNoNearYes();
+      window.addEventListener('resize', positionNoNearYes);
+
+      // Track pointer for evasive behavior
+      let lastPointer = null;
+      window.addEventListener('mousemove', e => lastPointer = {x:e.clientX, y:e.clientY}, {passive:true});
+      window.addEventListener('touchmove', e => { const t=e.touches[0]; if(t) lastPointer={x:t.clientX,y:t.clientY}; }, {passive:true});
+
+      function moveNoButton(){
+        const btnRect = noBtn.getBoundingClientRect();
+        const margin = 12;
+        const maxX = window.innerWidth - btnRect.width - margin;
+        const maxY = window.innerHeight - btnRect.height - margin;
+
+        let x = Math.random()*maxX;
+        let y = Math.random()*maxY;
+
+        if (lastPointer){
+          const dx = lastPointer.x - btnRect.left;
+          const dy = lastPointer.y - btnRect.top;
+          const d = Math.hypot(dx, dy)||1;
+          const push = 160;
+          x = clamp(btnRect.left - (dx/d)*push + (Math.random()*60-30), margin, maxX);
+          y = clamp(btnRect.top  - (dy/d)*push + (Math.random()*60-30), margin, maxY);
         }
 
-        function celebrate() {
-            document.getElementById('main-content').style.display = 'none';
-            document.getElementById('success-msg').style.display = 'block';
-            document.body.style.backgroundColor = '#fff';
-            // Optional: add confetti here
-        }
-    </script>
-</body>
-</html>
+        noBtn.style.left = x+'px';
+        noBtn.style.top = y+'px';
+
+        yesScale = Math.min(YES_MAX, yesScale + 0.18);
+        yesBtn.style.transform = `scale(${yesScale})`;
+      }
+
+      noBtn.addEventListener('mouseenter', moveNoButton);
+      noBtn.addEventListener('focus', moveNoButton);
+      noBtn.addEventListener('pointerdown', moveNoButton);
+      noBtn.addEventListener('touchstart', e => { e.preventDefault(); moveNoButton(); }, {passive:false});
+
+      yesBtn.addEventListener('click', celebrate);
+      yesBtn.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') celebrate(); });
+
+      // Celebration ----------------------------------------------------------------
+      function celebrate(){
+        main.style.display = 'none';
+        successWrap.style.display = 'flex';
+
+        // Background stays pretty (no harsh white), launch confetti + hearts + typewriter
+        resizeCanvas();
+        launchConfetti(1600);
+        spawnEmojis(22);
+        typeText(typewriterEl, "Forever starts now. Let’s make the cutest Valentine’s date—dessert first? 🍰💗", 26);
+      }
+
+      // Typewriter effect
+      function typeText(el, text, speed=25){
+        el.textContent = '';
+        let i=0;
+        const step = () => {
+          el.textContent = text.slice(0, i++);
+          if (i <= text.length) requestAnimationFrame(step);
+        };
+        // make it human-like by pacing with time
+        (function paced(){
+          if (i<=text.length){
+            el.textContent = text.slice(0, i++);
+            setTimeout(paced, speed + Math.random()*50);
+          }
+        })();
+      }
+
+      // Floating hearts & sparkles
+      function spawnEmojis(n=14){
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) return;
+
+        const pool = ['💖','💘','✨','💞','🌹','💕'];
+        for(let i=0;i<n;i++){
+          const e = document.createElement('span');
+          e.className='float-emoji';
+          e.textContent = pool[Math.floor(Math.random()*pool.length)];
+          e.style.left = (Math.random()*100)+'vw';
+          e.style.fontSize = (16 + Math.random()*18)+'px';
