@@ -316,3 +316,86 @@
           e.textContent = pool[Math.floor(Math.random()*pool.length)];
           e.style.left = (Math.random()*100)+'vw';
           e.style.fontSize = (16 + Math.random()*18)+'px';
+          e.style.animationDuration = (5000 + Math.random()*5500)+'ms';
+          e.style.setProperty('--drift', (Math.random()*90-45)+'px');
+          document.body.appendChild(e);
+          const total = parseFloat(e.style.animationDuration);
+          setTimeout(()=> e.remove(), total + 120);
+        }
+      }
+
+      // Confetti (lightweight)
+      function resizeCanvas(){
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      function launchConfetti(duration=1300){
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) return;
+
+        confettiCanvas.style.display = 'block';
+        const colors=['#ff4d6d','#ffd166','#7bdff2','#b2f7ef','#cdb4db','#ffc8dd','#a2d2ff','#ffe066'];
+        const pieces=[];
+        const count = Math.round((window.innerWidth*window.innerHeight)/30000) + 90;
+
+        for(let i=0;i<count;i++){
+          pieces.push({
+            x: Math.random()*confettiCanvas.width,
+            y: -10 - Math.random()*80,
+            w: 6 + Math.random()*7,
+            h: 10 + Math.random()*12,
+            color: colors[i%colors.length],
+            vy: 2 + Math.random()*4,
+            vx: -1.8 + Math.random()*3.6,
+            rot: Math.random()*Math.PI,
+            vr: -0.25 + Math.random()*0.5,
+            alpha: 0.85 - Math.random()*0.25
+          });
+        }
+
+        let start = performance.now();
+        function tick(now){
+          const elapsed = now - start;
+          ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+
+          pieces.forEach(p=>{
+            p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+            ctx.restore();
+          });
+
+          if (elapsed < duration){
+            requestAnimationFrame(tick);
+          } else {
+            confettiCanvas.style.display = 'none';
+            ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+          }
+        }
+        requestAnimationFrame(tick);
+      }
+
+      // CTA actions
+      setDateBtn.addEventListener('click', () => {
+        // Opens a calendar link or reminder—customize if you want a specific date.
+        const url = 'https://calendar.google.com/';
+        window.open(url, '_blank', 'noopener');
+      });
+
+      replayBtn.addEventListener('click', () => {
+        // Replay the celebration without re-asking
+        launchConfetti(1400);
+        spawnEmojis(18);
+        typeText(typewriterEl, "Counting down to our sweetest date. I’ll bring the flowers—you bring the smile 🌷😊", 26);
+      });
+
+    })();
+  </script>
+</body>
+</html>
